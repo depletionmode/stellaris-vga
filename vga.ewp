@@ -294,6 +294,7 @@
         <option>
           <name>CCIncludePath2</name>
           <state>c:\StellarisWare</state>
+          <state>d:\StellarisWare</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1835,7 +1836,7 @@
     </settings>
   </configuration>
   <file>
-    <name>$PROJ_DIR$\..\..\..\..\..\StellarisWare\driverlib\ewarm-cm4f\Exe\driverlib-cm4f.a</name>
+    <name>$PROJ_DIR$\..\..\..\..\StellarisWare\driverlib\ewarm-cm4f\Exe\driverlib-cm4f.a</name>
   </file>
   <file>
     <name>$PROJ_DIR$\main.c</name>

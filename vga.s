@@ -24,8 +24,8 @@ Timer0IntHandler:
   ; total = 628
   
   ; todo save regs
-  push r1
-  push r2
+  ;push r1
+  ;push r2
   
   ; sync interrupt latency to hfp
   
@@ -64,8 +64,8 @@ Timer0IntHandler:
   ; clear rgbi port
   
   ; resore regs
-  pop r2
-  pop r1
+  ;pop r2
+  ;pop r1
   
   ;return from interrupt
   
