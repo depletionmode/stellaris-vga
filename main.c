@@ -14,7 +14,12 @@
 void Timer0IntHandler()
 {
   TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
-  
+  // TIMER0_BASE 0x40030000
+  // TIMER_TIMA_TIMEOUT 0x00000001
+  // TIMER_O_ICR 0x00000024
+
+  // update this reg 0x40030024 = 0x00000001
+
   asm("nop");
 }*/
 
