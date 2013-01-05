@@ -10,8 +10,8 @@
 #include "driverlib/sysctl.h"
 #include "driverlib/timer.h"
 #include "utils/uartstdio.h"
-/*
-void Timer0IntHandler()
+
+void Timer0IntHandlerC()
 {
   TimerIntClear(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
   // TIMER0_BASE 0x40030000
@@ -21,7 +21,7 @@ void Timer0IntHandler()
   // update this reg 0x40030024 = 0x00000001
 
   asm("nop");
-}*/
+}
 
 void main()
 {
@@ -30,6 +30,7 @@ void main()
                  SYSCTL_USE_PLL |
                  SYSCTL_OSC_MAIN |
                  SYSCTL_XTAL_16MHZ);
+  
   
   /* enable & configure timer + interrupt*/
   SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
@@ -45,6 +46,8 @@ void main()
   /* enable led */
   SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
   GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
+  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
+  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
   
   while (1)
   {
@@ -53,8 +56,8 @@ void main()
     
     while (i--);
     
-    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 1);
-    SysCtlDelay(SysCtlClockGet() / 1000);
-    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0);
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3, 0xff);
+    SysCtlDelay(SysCtlClockGet() / 100);
+    GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3, 0);
   }
 }

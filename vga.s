@@ -7,6 +7,7 @@
 
 Timer0IntHandler:
   ; r12 is used as a counter (make sure not using in main code)
+  push {r7, lr}
   
   ; save regs
   push {r0}
@@ -14,10 +15,10 @@ Timer0IntHandler:
   push {r2}
   
   ; clear interrupt timer
-  ldr r0,=1             ;TIMER_TIMA_TIMEOUT
-  ldr r1,=0x24          ;TIMER_O_ICR
-  ldr r2,=0x40030000    ;TIMER0_BASE
-  str r0,[r2,r1]        ;*(TIMER0_BASE + TIMER_O_ICR) = TIMER_TIMA_TIMEOUT
+  ;movs r1, #1
+  ldr r1,=1             ;TIMER_TIMA_TIMEOUT
+  ldr r0,=0x40030000    ;TIMER0_BASE
+  str r1,[r0, #0x24]    ;*(TIMER0_BASE + TIMER_O_ICR) = TIMER_TIMA_TIMEOUT
 
   ; horizontal timing
   ; hfp 40 (1-40)
@@ -83,5 +84,7 @@ Timer0IntHandler:
   pop {r2}
   pop {r1}
   pop {r0}
+  
+  pop {r0, pc}
 
   END

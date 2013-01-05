@@ -16,3 +16,4 @@ settings/vga.cspy.bat
 Debug/Obj/startup.pbi.cout
 vga.dep
 settings/vga.wsdt
+Debug/Exe/vga.sim
