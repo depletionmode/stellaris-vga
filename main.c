@@ -39,15 +39,15 @@ void main()
   
   /* enable vga rgb ping */
   SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
-  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_1);
-  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_2);
-  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_3);
-  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_4);
+  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_1);   // r
+  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_2);   // g
+  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_3);   // b
+  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_4);   // i
   
   /* enable vga sync pins */
   SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
-  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_0);
-  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_1);
+  GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_0);   // vsync
+  GPIOPinTypeGPIOOutput(GPIO_PORTB_BASE, GPIO_PIN_1);   // hsync
   
   /* enable & configure timer + interrupt */
   SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
