@@ -31,8 +31,25 @@ void main()
                  SYSCTL_OSC_MAIN |
                  SYSCTL_XTAL_16MHZ);
   
+  /* enable led */
+  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
+  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
+  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
   
-  /* enable & configure timer + interrupt*/
+  /* enable vga rgb ping */
+  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_1);
+  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_2);
+  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_3);
+  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_4);
+  
+  /* enable vga sync pins */
+  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_0);
+  GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, GPIO_PIN_1);
+  
+  /* enable & configure timer + interrupt */
   SysCtlPeripheralEnable(SYSCTL_PERIPH_TIMER0);
   IntMasterEnable();
   TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);
@@ -42,12 +59,6 @@ void main()
   IntEnable(INT_TIMER0A);
   TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
   TimerEnable(TIMER0_BASE, TIMER_A);
-  
-  /* enable led */
-  SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
-  GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_3);
   
   while (1)
   {
