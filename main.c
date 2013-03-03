@@ -20,7 +20,7 @@ void Timer0IntHandlerC()
 
   // update this reg 0x40030024 = 0x00000001
 
-  asm("nop");
+  __asm__("nop");
 }
 
 void main()
