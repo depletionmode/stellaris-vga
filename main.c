@@ -55,20 +55,22 @@ void main()
   TimerConfigure(TIMER0_BASE, TIMER_CFG_PERIODIC);
   TimerLoadSet(TIMER0_BASE,
                TIMER_A,
-               (unsigned int)(SysCtlClockGet() / 1000 / 1000 * 26.4));     /* 26.4us (1056 cycles @ 40 mhz) */
+               SysCtlClockGet() * 264 / 10000000);     /* 26.4us (1056 cycles @ 40 mhz) */
   IntEnable(INT_TIMER0A);
   TimerIntEnable(TIMER0_BASE, TIMER_TIMA_TIMEOUT);
   TimerEnable(TIMER0_BASE, TIMER_A);
+
   
   while (1)
   {
     /* blink led */
     int i = 0xffff;
-    
+
     while (i--);
     
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3, 0xff);
-    SysCtlDelay(SysCtlClockGet() / 100);
+    SysCtlDelay(SysCtlClockGet() / 8);
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3, 0);
+    SysCtlDelay(SysCtlClockGet() / 8);
   }
 }
