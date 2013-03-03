@@ -3,6 +3,7 @@
   .data
   .align 2
   .globl LineCount
+
 LineCount: .word 0
 
   .text
@@ -74,11 +75,23 @@ loop_0: @ {3*4-1=11 cycles}
   @ set hsync low [2 cycles]
   str r3, [r0]  @ GPIO_PIN_1 clear
   
+  @ reset line counter [8 cycles]
+  ldr r4, =629
+  cmp r3, r4
+  beq .Lline_reset
+  nop
+  nop
+  b .Lno_reset
+.Lline_reset:
+  mov r3, #0
+  str r3, [r2]
+.Lno_reset:
+  
   @ inc line counter  [5 cycles]
   ldr r3, [r2]
   add r3, #1
   str r3, [r2]
-  
+
   @ vsync on at line 1 [9 cycles]
   cmp r3, #1    @ now at start of vsp
   beq .Lvsync_on
@@ -131,9 +144,9 @@ loop_0: @ {3*4-1=11 cycles}
   mov r6, #0
 .Lcont_3:
 
-  @ waste cycles [82 cycles] 
+  @ waste cycles [74 cycles] 
   mov r0, #0
-.Lwasteloop_1:  @ {20*4-1=79 cycles}
+.Lwasteloop_1:  @ {18*4-1=71 cycles}
   add r0, #1
   cmp r0, #14
   bne .Lwasteloop_1 @2
