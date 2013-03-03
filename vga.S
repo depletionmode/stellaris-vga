@@ -26,8 +26,10 @@ Timer0IntHandler:
   @ total = 628
   
   @ *********
-  @ ** hfp ** [40 cycles]
+  @ ** hfp ** [40-12=28 cycles]
   @ *********
+  @ hfp is really 40 cycles, but 12 cycles are stolen by the end
+
   @ prologue [3 cycles]
   push {r3, lr}
  
@@ -41,131 +43,155 @@ Timer0IntHandler:
  
   @ ptr to GPIO_PORTB_BASE in r0 [2 cycles]
   @ (this will be persisted)
-  ldr r0,=0x40005000    @ GPIO_PORTB_BASE
-  
-  @ waste cycles [25 cycles]
-  mov r0, #0
-loop_0: @ {6*4=24 cycles}
-  add r0, #1
-  cmp r0, #6
+  ldr r0, =0x40005000    @ GPIO_PORTB_BASE
+
+  @ ptr to GPIO_PORTB_BASE in r1 [2 cycles]
+  @ (this will be persisted)
+  ldr r1, =0x40024000    @ GPIO_PORTE_BASE
+
+  @ ptr to line counter  [2 cycles]
+  @ (this will be persisted)
+  ldr r2, =LineCount
+
+  @ waste cycles [9 cycles]
+  mov r3, #0
+loop_0: @ {2*4-1=7 cycles}
+  add r3, #1
+  cmp r3, #3
   bne loop_0 @2
+  nop
+  nop
   
   @ *********
   @ ** hsp ** [128 cycles]
   @ *********
   @ set hsp low [6 cycles]
-  ldrb r1,[r0]
-  mov r2, #0xfd
-  and r1, r2
-  str r1, [r0]  @ GPIO_PIN_1 clear
+  ldrb r3,[r0]
+  mov r4, #0xfd
+  and r3, r4
+  str r3, [r0]  @ GPIO_PIN_1 clear
   
   @ inc line counter  [7 cycles]
-  ldr r1, =LineCount
-  ldr r2, [r1]
-  add r2, #1
-  str r2, [r1]
+  ldr r3, [r2]
+  add r3, #1
+  str r3, [r2]
+  nop
+  nop
   
   @ vsync on at line 1 [9 cycles]
-  cmp r2, #1    @ now at start of vsp
+  cmp r3, #1    @ now at start of vsp
   beq .Lvsync_on
+  nop
   nop
   nop
   nop
   nop
   b .Lcont_0
 .Lvsync_on:     @ {6 cycles}
-  ldrb r1,[r0]
-  mov r2, #0xfe
-  and r1, r2
-  str r1, [r0]  @ GPIO_PIN_0 clear
+  ldrb r3,[r0]
+  mov r4, #0xfe
+  and r3, r4
+  str r3, [r0]  @ GPIO_PIN_0 clear
 .Lcont_0:
  
   @ vsync off at line 5 [13 cycles]
-  ldr r1, =LineCount
-  ldr r2, [r1]
-  cmp r2, #5
+  ldr r3, [r2]
+  cmp r3, #5
   beq .Lvsync_off
+  nop
   nop
   nop
   nop
   nop
   b .Lcont_1
 .Lvsync_off:    @ {6 cycles}
-  ldrb r1,[r0]
-  mov r2, #1
-  orr r1, r2
-  str r1, [r0]  @ GPIO_PIN_0 set
+  ldrb r3,[r0]
+  mov r4, #1
+  orr r3, r4
+  str r3, [r0]  @ GPIO_PIN_0 set
 .Lcont_1:
+  nop
+  nop
   
   @ activate pixels on line 28 [12 cycles]
-  ldr r1, =LineCount
-  ldr r2, [r1]
-  cmp r2, #28
+  ldr r3, [r2]
+  cmp r3, #28
   beq .Lactivate_px
   nop
   nop
   nop
   b .Lcont_2
 .Lactivate_px:  @ {5 cycles}
-  ldr r0,=0x40024000    @ GPIO_PORTE_BASE
-  mov r1, #0xff         @ set entire port (for testing)
-  str r1, [r0]
+  mov r3, #0xff         @ set entire port (for testing)
+  str r3, [r1]
+  nop
+  nop
 .Lcont_2:
+  nop
+  nop
   
   @ deactivate pixels on line 628 [14 cycles]
-  ldr r1, =LineCount
-  ldr r2, [r1]
-  ldr r1, =628
-  cmp r2, r1
+  @ TODO
+  ldr r3, [r2]
+  ldr r4, =628
+  cmp r3, r4
   beq .Ldeactivate_px
   nop
   nop
   nop
   b .Lcont_3
 .Ldeactivate_px: @{5 cycles}
-  ldr r0,=0x40024000    @ GPIO_PORTE_BASE
-  mov r1, #0x00         @ clear entire port (for testing)
-  str r1, [r0]
+  mov r3, #0x00         @ clear entire port (for testing)
+  str r3, [r1]
+  nop
+  nop
 .Lcont_3:
 
   @ waste cycles [59 cycles] 
   mov r0, #0
-.Lwasteloop_1:  @ {14*4=56 cycles}
+.Lwasteloop_1:  @ {14*4-1=55 cycles}
   add r0, #1
   cmp r0, #14
   bne .Lwasteloop_1 @2
   nop
   nop
+  nop
 
   @ hsync off [8 cycles]
-  ldr r0,=0x40005000    @ GPIO_PORTB_BASE
-  ldrb r1,[r0]
-  mov r2, #2
-  orr r1, r2            @ GPIO_PIN_1 set
-  str r1, [r0]
+  ldrb r3,[r0]
+  mov r4, #2
+  orr r3, r4            @ GPIO_PIN_1 set
+  str r3, [r0]
+  nop
+  nop
   
   @ *********
   @ ** hbp ** [88 cycles]
   @ *********
   @ exit on vblank [7 cycles]
-  ldr r1, =LineCount
-  ldr r2, [r1]
-  cmp r2, #1
+  ldr r3, [r2]
+  cmp r3, #1
+  nop
+  nop
   beq end
+  nop
   
   @ waste cycles [77 cycles]
   mov r1, #0
-.Lwasteloop_2:  @ {19*4=76 cycles}
+.Lwasteloop_2:  @ {19*4-1=75 cycles}
   add r1, #1
   cmp r1, #19
   bne .Lwasteloop_2
+  nop
+  nop
+  nop
+  nop
   
-  @ set up pixel port [3 cycles]
-  ldr r0,=0x40024000    @ GPIO_PORTE_BASE
-  mov r1, #0
-
   @ set up color counter [1 cycle]
   mov r4, #0
+
+  @ set initial rgb [1 cycle]
+  mov r3, #0
 
   @ *********
   @ ** hpx ** [800 cycles]
@@ -173,17 +199,15 @@ loop_0: @ {6*4=24 cycles}
 
   @ output pattern [800 cycles]
 .Lcolor_loop:
-  str r1, [r0]
-  add r1, #1
+  str r3, [r1]
+  add r3, #1
   add r4, #1
   cmp r4, #100
   nop
   bne .Lcolor_loop
+  nop
   
-  @ hblank
-  @ clear rgbi port
-  mov r1, #0
-  str r1, [r0]
+  @ *********
 
 end:
   @ restore regs [5 cycles]
