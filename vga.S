@@ -26,57 +26,58 @@ Timer0IntHandler:
   @ total = 628
   
   @ *********
-  @ ** hfp ** [40-12=28 cycles]
+  @ ** hfp ** [40 cycles]
   @ *********
-  @ hfp is really 40 cycles, but 12 cycles are stolen by the end
 
   @ prologue [3 cycles]
   push {r3, lr}
  
-  @ save regs [5 cycles]
-  push {r1, r2, r3, r4}
+  @ save regs [7 cycles]
+  push {r1, r2, r3, r4, r5, r6}
   
   @ clear interrupt timer [5 cycles]
   mov r1, #1             @ TIMER_TIMA_TIMEOUT
   ldr r0, =0x40030000    @ TIMER0_BASE
   str r1, [r0, #0x24]    @ *(TIMER0_BASE + TIMER_O_ICR) = TIMER_TIMA_TIMEOUT
- 
-  @ ptr to GPIO_PORTB_BASE in r0 [2 cycles]
+
+  @ ptr to GPIO_PORTB_BASE in r0 [3 cycles]
   @ (this will be persisted)
   ldr r0, =0x40005000    @ GPIO_PORTB_BASE
+  nop
 
-  @ ptr to GPIO_PORTB_BASE in r1 [2 cycles]
+  @ ptr to GPIO_PORTB_BASE in r1 [3 cycles]
   @ (this will be persisted)
   ldr r1, =0x40024000    @ GPIO_PORTE_BASE
+  nop
 
-  @ ptr to line counter  [2 cycles]
+  @ ptr to line counter  [3 cycles]
   @ (this will be persisted)
   ldr r2, =LineCount
+  nop
 
-  @ waste cycles [9 cycles]
+  @ waste cycles [16 cycles]
   mov r3, #0
-loop_0: @ {2*4-1=7 cycles}
+loop_0: @ {3*4-1=11 cycles}
   add r3, #1
   cmp r3, #3
   bne loop_0 @2
-  nop
-  nop
+
+  @ hsync setup [4 cycles]
+  ldrb r3,[r0]
+  mov r4, #0xfd
+  and r3, r4
   
   @ *********
   @ ** hsp ** [128 cycles]
   @ *********
-  @ set hsp low [6 cycles]
-  ldrb r3,[r0]
-  mov r4, #0xfd
-  and r3, r4
+
+  @ set hsync low [2 cycles]
   str r3, [r0]  @ GPIO_PIN_1 clear
   
-  @ inc line counter  [7 cycles]
+  @ inc line counter  [5 cycles]
   ldr r3, [r2]
   add r3, #1
   str r3, [r2]
-  nop
-  nop
   
   @ vsync on at line 1 [9 cycles]
   cmp r3, #1    @ now at start of vsp
@@ -94,7 +95,7 @@ loop_0: @ {2*4-1=7 cycles}
   str r3, [r0]  @ GPIO_PIN_0 clear
 .Lcont_0:
  
-  @ vsync off at line 5 [13 cycles]
+  @ vsync off at line 5 [11 cycles]
   ldr r3, [r2]
   cmp r3, #5
   beq .Lvsync_off
@@ -110,79 +111,55 @@ loop_0: @ {2*4-1=7 cycles}
   orr r3, r4
   str r3, [r0]  @ GPIO_PIN_0 set
 .Lcont_1:
-  nop
-  nop
   
-  @ activate pixels on line 28 [12 cycles]
+  @ activate pixels on line 28 [6 cycles]
   ldr r3, [r2]
   cmp r3, #28
   beq .Lactivate_px
-  nop
-  nop
-  nop
   b .Lcont_2
-.Lactivate_px:  @ {5 cycles}
-  mov r3, #0xff         @ set entire port (for testing)
-  str r3, [r1]
-  nop
-  nop
+.Lactivate_px:  @ {1 cycle}
+  mov r6, #1
 .Lcont_2:
-  nop
-  nop
   
-  @ deactivate pixels on line 628 [14 cycles]
-  @ TODO
+  @ deactivate pixels on line 628 [7 cycles]
   ldr r3, [r2]
   ldr r4, =628
   cmp r3, r4
   beq .Ldeactivate_px
-  nop
-  nop
-  nop
   b .Lcont_3
-.Ldeactivate_px: @{5 cycles}
-  mov r3, #0x00         @ clear entire port (for testing)
-  str r3, [r1]
-  nop
-  nop
+.Ldeactivate_px: @ {1 cycle}
+  mov r6, #0
 .Lcont_3:
 
-  @ waste cycles [59 cycles] 
+  @ waste cycles [82 cycles] 
   mov r0, #0
-.Lwasteloop_1:  @ {14*4-1=55 cycles}
+.Lwasteloop_1:  @ {20*4-1=79 cycles}
   add r0, #1
   cmp r0, #14
   bne .Lwasteloop_1 @2
   nop
   nop
-  nop
 
-  @ hsync off [8 cycles]
+  @ hsync off [6 cycles]
   ldrb r3,[r0]
   mov r4, #2
   orr r3, r4            @ GPIO_PIN_1 set
   str r3, [r0]
-  nop
-  nop
   
   @ *********
   @ ** hbp ** [88 cycles]
   @ *********
-  @ exit on vblank [7 cycles]
-  ldr r3, [r2]
-  cmp r3, #1
-  nop
-  nop
+  @ exit on vblank [3 cycles]
+  cmp r6, #0
   beq end
   nop
   
-  @ waste cycles [77 cycles]
-  mov r1, #0
-.Lwasteloop_2:  @ {19*4-1=75 cycles}
-  add r1, #1
-  cmp r1, #19
+  @ waste cycles [83 cycles]
+  mov r3, #0
+.Lwasteloop_2:  @ {20*4-1=79 cycles}
+  add r3, #1
+  cmp r3, #19
   bne .Lwasteloop_2
-  nop
   nop
   nop
   nop
@@ -198,7 +175,7 @@ loop_0: @ {2*4-1=7 cycles}
   @ *********
 
   @ output pattern [800 cycles]
-.Lcolor_loop:
+.Lcolor_loop:   @ {100*8-1=799}
   str r3, [r1]
   add r3, #1
   add r4, #1
@@ -209,11 +186,15 @@ loop_0: @ {2*4-1=7 cycles}
   
   @ *********
 
+  @ horizontal blanking
+  mov r3, #0
+  str r3, [r1]
+
 end:
-  @ restore regs [5 cycles]
-  pop {r1, r2, r3, r4}
+  @ restore regs [7 cycles]
+  pop {r1, r2, r3, r4, r5, r6}
   
   @ return from interrupt [4 cycles]
   pop {r3, pc}
-  @.word 0x40030000 @addmi r0, r3, r0
+  .word 0x40030000 @addmi r0, r3, r0
 

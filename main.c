@@ -69,9 +69,9 @@ void main()
     
 while(i--);
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3, 0xff);
-    SysCtlDelay(SysCtlClockGet() / 1000);
+    SysCtlDelay(SysCtlClockGet() / 100);
 while(i--);
     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3, 0);
-    SysCtlDelay(SysCtlClockGet() / 1000);
+    SysCtlDelay(SysCtlClockGet() / 100);
   }
 }
